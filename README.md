@@ -1,1 +1,3 @@
 # WasedaMultivariateAnalysisFinal
+早稲田大学の多変量解析の最終レポートです。
+培地の画像を2値分類してコロニーと培地を分けます。

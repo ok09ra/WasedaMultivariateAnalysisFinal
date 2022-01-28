@@ -46,22 +46,36 @@ for input_image_link in input_image_links:
 
     # 入力画像の読み込み
     img = cv2.imread(input_image_link)
-
+    image_size = img.size
     # グレースケール変換
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     # 方法1（NumPyで実装）
     two_value = otsu(gray)
 
-
-    contours, hierarchy = cv2.findContours(gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) #img_binaryを輪郭抽出
-    cv2.drawContours(img, contours, -1, (0,0,255), 2) #抽出した輪郭を赤色でimg_colorに重ね書き
-    print(len(contours)) #抽出した輪郭の個数を表示する
-
     # 結果を出力
-    cv2.imwrite(f"./results/{file_name}_result_{len(contours)}.png", two_value)
 
-    cv2.imshow("contours",img) #別ウィンドウを開き(ウィンドウ名 "contours")オブジェクトimg_colorを表示
+    contours, hierarchy = cv2.findContours(gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) #輪郭の抽出
+
+    contours_selected = contours
+    #contours_selected = [i for i in contours if (cv2.contourArea(i) > 100 and cv2.contourArea(i) < 12000 )]
+    #contours_selected = [i for i in contours if (cv2.contourArea(i) > 100)]
+    #contours_selected = [i for i in contours if (cv2.contourArea(i) < 12000 )]
+
+    cv2.imwrite(f"./results/{file_name}_result_{len(contours_selected)}.png", two_value)
+
+    img_two_value = cv2.imread(f"./results/{file_name}_result_{len(contours_selected)}.png")
+    
+    img_h_concat_wo_edge = cv2.hconcat([img, img_two_value])
+    cv2.imwrite(f"./results/{file_name}_result_hconcat_wo_edge{len(contours_selected)}.png", img_h_concat_wo_edge)
+    
+    cv2.drawContours(img, contours_selected, -1, (0,0,255), 2) #輪郭を赤色でimgに描写
+    cv2.drawContours(img_two_value, contours_selected, -1, (0,0,255), 2) #輪郭を赤色でimgに描写
+    
+    img_h_concat = cv2.hconcat([img, img_two_value])
+    cv2.imwrite(f"./results/{file_name}_result_hconcat{len(contours_selected)}.png", img_h_concat)
+
+    cv2.imshow("contours",img_h_concat) #確認表示
 
     cv2.waitKey(0) #キー入力待ち
     cv2.destroyAllWindows() #ウインドウを閉じる

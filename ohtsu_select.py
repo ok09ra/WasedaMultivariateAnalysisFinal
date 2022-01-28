@@ -2,8 +2,9 @@ import numpy as np
 import os
 import cv2
 import glob
+import matplotlib.pyplot as plt
 
-def otsu(input_image, min = 0, max = 255):
+def otsu(input_image, file_name, min = 0, max = 255):
 
     #各画素の明るさの集計
     hist = [np.sum(input_image == i) for i in range(256)]
@@ -36,6 +37,15 @@ def otsu(input_image, min = 0, max = 255):
     input_image[input_image < t] = min
     input_image[input_image >= t] = max
 
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    bar = ax.bar(range(256), hist, 0.35)
+    ax.set_title(f'pixel count and value t={t}')
+    ax.set_xlabel('value')
+    ax.set_ylabel('count')
+    bar[t].set_facecolor('orange')
+    fig.savefig(f"./results/{file_name}_result_hist.png")
+
     return input_image
 
 
@@ -51,7 +61,7 @@ for input_image_link in input_image_links:
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     # 方法1（NumPyで実装）
-    two_value = otsu(gray)
+    two_value = otsu(gray, file_name)
 
     # 結果を出力
 
@@ -74,8 +84,9 @@ for input_image_link in input_image_links:
     
     img_h_concat = cv2.hconcat([img, img_two_value])
     cv2.imwrite(f"./results/{file_name}_result_hconcat{len(contours_selected)}.png", img_h_concat)
-
+"""
     cv2.imshow("contours",img_h_concat) #確認表示
 
     cv2.waitKey(0) #キー入力待ち
     cv2.destroyAllWindows() #ウインドウを閉じる
+"""
